@@ -27,4 +27,5 @@ jobs:
       - name: Save Nix Cache
         if: ${{ runner.os == 'Linux' }}
         run: |
+          find "${{ runner.temp }}" -ls
           nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
