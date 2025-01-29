@@ -1,0 +1,30 @@
+name: Build
+
+on:
+  push: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cache Nix
+        uses: actions/cache@v4
+        with:
+          path: file://${{ runner.temp }}/nix-binary-cache
+          key: ${{ runner.os }}-nix-cache-sgillespie
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          extra_nix_config: |
+            extra-substituters = file://${{ runner.temp }}/nix-binary-cache
+
+      - name: Build hello
+        run: |
+          nix build -v nixpkgs\#pkgsCross.musl64.hello
+
+      - name: Save Nix Cache
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
