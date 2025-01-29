@@ -42,4 +42,4 @@ jobs:
         run: |
           whoami
           find "${{ runner.temp }}" -ls
-          nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
+          sudo nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
