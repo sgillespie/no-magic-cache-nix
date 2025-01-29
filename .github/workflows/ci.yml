@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Look at temp contents
         run: |
-          mkdir -p "${{ runner.temp }}/nix-binary-cache"
+          mkdir -p "${{ runner.temp }}/nix-binary-cache/nar"
           find "${{ runner.temp }}" -ls
 
       - name: Cache Nix
