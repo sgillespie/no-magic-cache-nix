@@ -10,6 +10,7 @@ jobs:
     steps:
       - name: Look at temp contents
         run: |
+          mkdir -p "${{ runner.temp }}/nix-binary-cache"
           find "${{ runner.temp }}" -ls
 
       - name: Cache Nix
@@ -42,4 +43,4 @@ jobs:
         run: |
           whoami
           find "${{ runner.temp }}" -ls
-          sudo nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
+          nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
