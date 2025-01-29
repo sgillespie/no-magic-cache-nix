@@ -8,11 +8,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Look at temp contents
+        run: |
+          find "${{ runner.temp }}" -ls
+
       - name: Cache Nix
         uses: actions/cache@v4
         with:
           path: file://${{ runner.temp }}/nix-binary-cache
           key: ${{ runner.os }}-nix-cache-sgillespie
+
+      - name: Look at temp contents
+        run: |
+          find "${{ runner.temp }}" -ls
 
       - name: Install Nix
         uses: cachix/install-nix-action@v30
@@ -20,8 +28,13 @@ jobs:
           extra_nix_config: |
             extra-substituters = file://${{ runner.temp }}/nix-binary-cache
 
+      - name: Look at temp contents
+        run: |
+          find "${{ runner.temp }}" -ls
+
       - name: Build hello
         run: |
+          find "${{ runner.temp }}" -ls
           nix build -v nixpkgs\#pkgsCross.musl64.hello
 
       - name: Save Nix Cache
