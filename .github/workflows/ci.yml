@@ -1,3 +1,4 @@
+
 name: Build
 
 on:
@@ -19,7 +20,8 @@ jobs:
         with:
           extra_nix_config: |
             extra-substituters = file://${{ runner.temp }}/nix-binary-cache
-            require-sigs = false
+            extra-trusted-public-keys = local-cache-1:PrMkzjlx4rG/54500KcEEHoGoGltjMbB+CKiRWGG370=
+            require-sigs = true
 
       - name: Build hello
         run: |
@@ -27,6 +29,9 @@ jobs:
 
       - name: Save Nix Cache
         if: ${{ runner.os == 'Linux' }}
+        env:
+          NIX_SIGNING_PRIVATE_KEY: ${{ env.NIX_SIGNING_PRIVATE_KEY }}
         run: |
-          find "${{ runner.temp }}" -ls
+          # Sign store paths
+          echo "$NIX_SIGNING_PRIVATE_KEY" | nix store sign --stdin --recursive result
           nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
