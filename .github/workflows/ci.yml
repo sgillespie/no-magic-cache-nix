@@ -33,5 +33,5 @@ jobs:
           NIX_SIGNING_PRIVATE_KEY: ${{ env.NIX_SIGNING_PRIVATE_KEY }}
         run: |
           # Sign store paths
-          echo "$NIX_SIGNING_PRIVATE_KEY" | nix store sign --stdin --recursive result
+          echo "$NIX_SIGNING_PRIVATE_KEY" | nix store sign --stdin --recursive ./result
           nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
