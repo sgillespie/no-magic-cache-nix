@@ -30,7 +30,7 @@ jobs:
       - name: Save Nix Cache
         if: ${{ runner.os == 'Linux' }}
         env:
-          NIX_SIGNING_PRIVATE_KEY: ${{ env.NIX_SIGNING_PRIVATE_KEY }}
+          NIX_SIGNING_PRIVATE_KEY: ${{ secrets.NIX_SIGNING_PRIVATE_KEY }}
         run: |
           # Sign store paths
           echo "$NIX_SIGNING_PRIVATE_KEY" > nix-cache-secret.key
