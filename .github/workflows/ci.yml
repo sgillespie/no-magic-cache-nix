@@ -38,5 +38,5 @@ jobs:
         run: |
           # Sign store paths
           echo "$NIX_SIGNING_PRIVATE_KEY" > nix-cache-secret.key
-          nix store sign --key-file nix-cache-secret.key --recursive ./result
+          nix store sign --key-file nix-cache-secret.key --recursive nixpkgs\#pkgsCross.musl64.hello
           nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
