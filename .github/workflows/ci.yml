@@ -34,6 +34,8 @@ jobs:
 
           cat "${{ runner.temp }}/post-build.sh"
 
+          ${{ runner.temp }}/post-build.sh
+
       - name: Prepopulate Nix Cache
         run: |
           mkdir -p "${{ runner.temp }}/nix-binary-cache/nar"
