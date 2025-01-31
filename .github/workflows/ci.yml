@@ -35,10 +35,10 @@ jobs:
             NIX=/nix/var/nix/profiles/default/bin/nix
 
             echo "Signing paths" \$OUT_PATHS
-            $NIX/nix store sign --key-file nix-cache-secret.key --recursive \$OUT_PATHS
+            $NIX store sign --key-file nix-cache-secret.key --recursive \$OUT_PATHS
 
             echo "Uploading paths" \$OUT_PATHS
-            $NIX/nix copy --to "file://${{ runner.temp }}/nix-binary-cache" \$OUT_PATHS
+            $NIX copy --to "file://${{ runner.temp }}/nix-binary-cache" \$OUT_PATHS
           EOF
 
           chmod +x "${{ runner.temp }}/post-build.sh"
