@@ -27,7 +27,7 @@ jobs:
       - name: Create Nix post build script
         run: |
           cat <<EOF > "${{ runner.temp }}/post-build.sh"
-            #!/usr/bin/env bash
+            #!/bin/sh
             set -eux
             set -f         # Disable globbing
             export IFS=' ' # Separate paths by space
