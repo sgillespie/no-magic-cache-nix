@@ -35,14 +35,13 @@ jobs:
             set -eux
             set -f         # Disable globbing
             export IFS=' ' # Separate paths by space
-            export NIX_BIN=/nix/var/nix/profiles/default/bin/nix
-            env | sort
+            export PATH="$PATH:/nix/var/nix/profiles/default/bin"
 
             echo "Signing paths" \$OUT_PATHS
-            /nix/var/nix/profiles/default/bin/nix store sign --key-file ${{ runner.temp }}/nix-cache-secret.key --recursive \$OUT_PATHS
+            nix store sign --key-file ${{ runner.temp }}/nix-cache-secret.key --recursive \$OUT_PATHS
 
             echo "Uploading paths" \$OUT_PATHS
-            /nix/var/nix/profiles/default/bin/nix copy --to "file://${{ runner.temp }}/nix-binary-cache" \$OUT_PATHS
+            nix copy --to "file://${{ runner.temp }}/nix-binary-cache" \$OUT_PATHS
           EOF
 
           # Make it executable
@@ -60,4 +59,4 @@ jobs:
 
       - name: Build hello
         run: |
-          nix build -v nixpkgs\#pkgsCross.musl64.hello
+          nix build nixpkgs\#pkgsCross.musl64.hello
