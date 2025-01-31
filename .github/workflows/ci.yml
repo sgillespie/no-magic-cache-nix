@@ -55,4 +55,4 @@ jobs:
         run: |
           set -x
           cat ${{ runner.temp }}/post-build.sh
-          nix build -vv nixpkgs\#pkgsCross.musl64.hello
+          nix build -vvv nixpkgs\#pkgsCross.musl64.hello
