@@ -60,5 +60,4 @@ jobs:
 
       - name: Build hello
         run: |
-          nix-channel --list
-          nix-build --expr '(import <nixpkgs> {}).writeText "example" (builtins.toString builtins.currentTime)'
+          nix build -v nixpkgs\#pkgsCross.musl64.hello
