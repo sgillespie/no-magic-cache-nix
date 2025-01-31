@@ -1,4 +1,3 @@
-
 name: Build
 
 on:
@@ -7,6 +6,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    env:
+      NIX_SIGNING_PRIVATE_KEY: local-cache-1:Ag+FcT4T15iUMQRpDvFlMr8l/jUOpuc7x6Bo2n0HYIc+syTOOXHisb/njnTQpwQQegagaW2MxsH4IqJFYYbfvQ==
+      NIX_SIGNING_PUBLIC_KEY: local-cache-1:PrMkzjlx4rG/54500KcEEHoGoGltjMbB+CKiRWGG370=
 
     steps:
       - name: Cache Nix
@@ -20,14 +23,11 @@ jobs:
         with:
           extra_nix_config: |
             extra-substituters = file://${{ runner.temp }}/nix-binary-cache
-            extra-trusted-public-keys = local-cache-1:PrMkzjlx4rG/54500KcEEHoGoGltjMbB+CKiRWGG370=
+            extra-trusted-public-keys = $NIX_SIGNING_PUBLIC_KEY
             require-sigs = true
             post-build-hook = ${{ runner.temp }}/post-build.sh
-          nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Set up Nix cache
-        env:
-          NIX_SIGNING_PRIVATE_KEY: ${{ secrets.NIX_SIGNING_PRIVATE_KEY }}
         run: |
           # Write out script
           cat <<EOF > "${{ runner.temp }}/post-build.sh"
@@ -35,6 +35,7 @@ jobs:
             set -eux
             set -f         # Disable globbing
             export IFS=' ' # Separate paths by space
+            # Add nix executables to PATH
             export PATH="$PATH:/nix/var/nix/profiles/default/bin"
 
             echo "Signing paths" \$OUT_PATHS
@@ -50,11 +51,7 @@ jobs:
           # Write out secret key
           echo "$NIX_SIGNING_PRIVATE_KEY" > "${{ runner.temp }}/nix-cache-secret.key"
 
-          # Prepopulate nix cache dirs
-          mkdir -p "${{ runner.temp }}/nix-binary-cache/nar"
-
-      - name: Prepopulate Nix Cache
-        run: |
+          # Prepopulate nix cache dirs to avoid permission problems
           mkdir -p "${{ runner.temp }}/nix-binary-cache/nar"
 
       - name: Build hello
