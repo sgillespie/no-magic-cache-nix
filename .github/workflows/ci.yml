@@ -35,7 +35,7 @@ jobs:
 
             echo "$PATH"
 
-            nix-store --version
+            /nix/var/nix/profiles/default/bin/nix --version
 
             echo "Signing paths" \$OUT_PATHS
             # nix store sign --key-file nix-cache-secret.key --recursive \$OUT_PATHS
