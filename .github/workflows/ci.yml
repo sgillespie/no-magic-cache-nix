@@ -53,6 +53,4 @@ jobs:
 
       - name: Build hello
         run: |
-          set -x
-          cat ${{ runner.temp }}/post-build.sh
-          nix build -vvvvv nixpkgs\#pkgsCross.musl64.hello
+          nix-build --expr '(import <nixpkgs> {}).writeText "example" (builtins.toString builtins.currentTime)'
