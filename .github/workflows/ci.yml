@@ -32,13 +32,14 @@ jobs:
             set -eux
             set -f         # Disable globbing
             export IFS=' ' # Separate paths by space
-            NIX=/nix/var/nix/profiles/default/bin/nix
+            NIX_BIN=/nix/var/nix/profiles/default/bin/nix
+            env
 
             echo "Signing paths" \$OUT_PATHS
-            "$NIX" store sign --key-file nix-cache-secret.key --recursive \$OUT_PATHS
+            /nix/var/nix/profiles/default/bin/nix store sign --key-file nix-cache-secret.key --recursive \$OUT_PATHS
 
             echo "Uploading paths" \$OUT_PATHS
-            "$NIX" copy --to "file://${{ runner.temp }}/nix-binary-cache" \$OUT_PATHS
+            /nix/var/nix/profiles/default/bin/nix copy --to "file://${{ runner.temp }}/nix-binary-cache" \$OUT_PATHS
           EOF
 
           chmod +x "${{ runner.temp }}/post-build.sh"
