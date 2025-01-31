@@ -25,16 +25,6 @@ jobs:
             post-build-hook = ${{ runner.temp }}/post-build.sh
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Save Nix Cache
-        if: ${{ runner.os == 'Linux' }}
-        env:
-          NIX_SIGNING_PRIVATE_KEY: ${{ secrets.NIX_SIGNING_PRIVATE_KEY }}
-        run: |
-          # Sign store paths
-          echo "$NIX_SIGNING_PRIVATE_KEY" > nix-cache-secret.key
-          nix store sign --key-file nix-cache-secret.key --recursive nixpkgs\#pkgsCross.musl64.hello
-          nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
-
       - name: Set up Nix cache
         env:
           NIX_SIGNING_PRIVATE_KEY: ${{ secrets.NIX_SIGNING_PRIVATE_KEY }}
