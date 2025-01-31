@@ -23,7 +23,7 @@ jobs:
         with:
           extra_nix_config: |
             extra-substituters = file://${{ runner.temp }}/nix-binary-cache
-            extra-trusted-public-keys = $NIX_SIGNING_PUBLIC_KEY
+            extra-trusted-public-keys = local-cache-1:PrMkzjlx4rG/54500KcEEHoGoGltjMbB+CKiRWGG370=
             require-sigs = true
             post-build-hook = ${{ runner.temp }}/post-build.sh
 
