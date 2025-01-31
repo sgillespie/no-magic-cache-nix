@@ -34,10 +34,10 @@ jobs:
 
             echo "$PATH"
 
-            echo "Signing paths" $OUT_PATHS
+            echo "Signing paths" \$OUT_PATHS
             nix store sign --key-file nix-cache-secret.key --recursive $OUT_PATHS
 
-            echo "Uploading paths" $OUT_PATHS
+            echo "Uploading paths" \$OUT_PATHS
             nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
           EOF
 
