@@ -15,6 +15,24 @@ jobs:
           path: ${{ runner.temp }}/nix-binary-cache
           key: ${{ runner.os }}-nix-cache-sgillespie
 
+      - name: Create Nix post build script
+        run: |
+          "${{ runner.temp }}/post-build.sh" < EOF
+            set -eu
+            set -f         # Disable globbing
+            export IFS=' ' # Separate paths by space
+
+            echo "Signing paths" $OUT_PATHS
+            nix store sign --key-file nix-cache-secret.key --recursive $OUT_PATHS
+
+            echo "Uploading paths" $OUT_PATHS
+            nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
+          EOF
+
+          chmod +x "${{ runner.temp }}/post-build.sh"
+
+          cat "${{ runner.temp }}/post-build.sh"
+
       - name: Prepopulate Nix Cache
         run: |
           mkdir -p "${{ runner.temp }}/nix-binary-cache/nar"
@@ -26,17 +44,8 @@ jobs:
             extra-substituters = file://${{ runner.temp }}/nix-binary-cache
             extra-trusted-public-keys = local-cache-1:PrMkzjlx4rG/54500KcEEHoGoGltjMbB+CKiRWGG370=
             require-sigs = true
+            post-build-hook = ${{ runner.temp }}/post-build.sh
 
       - name: Build hello
         run: |
           nix build -v nixpkgs\#pkgsCross.musl64.hello
-
-      - name: Save Nix Cache
-        if: ${{ runner.os == 'Linux' }}
-        env:
-          NIX_SIGNING_PRIVATE_KEY: ${{ secrets.NIX_SIGNING_PRIVATE_KEY }}
-        run: |
-          # Sign store paths
-          echo "$NIX_SIGNING_PRIVATE_KEY" > nix-cache-secret.key
-          nix store sign --key-file nix-cache-secret.key --recursive nixpkgs\#pkgsCross.musl64.hello
-          nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
