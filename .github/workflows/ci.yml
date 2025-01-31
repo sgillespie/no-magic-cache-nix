@@ -23,7 +23,7 @@ jobs:
             extra-trusted-public-keys = local-cache-1:PrMkzjlx4rG/54500KcEEHoGoGltjMbB+CKiRWGG370=
             require-sigs = true
             post-build-hook = ${{ runner.temp }}/post-build.sh
-            nix_path = nixpkgs=channel:nixos-unstable
+          nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Create Nix post build script
         run: |
@@ -51,4 +51,5 @@ jobs:
 
       - name: Build hello
         run: |
-          nix build -v nixpkgs\#pkgsCross.musl64.hello
+          nix-channel --list
+          nix-build --expr '(import <nixpkgs> {}).writeText "example" (builtins.toString builtins.currentTime)'
