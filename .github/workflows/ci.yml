@@ -16,7 +16,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/nix-binary-cache
-          key: ${{ runner.os }}-nix-cache-${{ hash-files('flake.lock', 'Cargo.lock') }}
+          key: ${{ runner.os }}-nix-cache-${{ hashFiles('flake.lock', 'Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-nix-cache-
 
