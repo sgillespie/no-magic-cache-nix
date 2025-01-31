@@ -25,26 +25,44 @@ jobs:
             post-build-hook = ${{ runner.temp }}/post-build.sh
           nix_path: nixpkgs=channel:nixos-unstable
 
-      - name: Create Nix post build script
+      - name: Save Nix Cache
+        if: ${{ runner.os == 'Linux' }}
+        env:
+          NIX_SIGNING_PRIVATE_KEY: ${{ secrets.NIX_SIGNING_PRIVATE_KEY }}
         run: |
+          # Sign store paths
+          echo "$NIX_SIGNING_PRIVATE_KEY" > nix-cache-secret.key
+          nix store sign --key-file nix-cache-secret.key --recursive nixpkgs\#pkgsCross.musl64.hello
+          nix copy --to "file://${{ runner.temp }}/nix-binary-cache" nixpkgs\#pkgsCross.musl64.hello
+
+      - name: Set up Nix cache
+        env:
+          NIX_SIGNING_PRIVATE_KEY: ${{ secrets.NIX_SIGNING_PRIVATE_KEY }}
+        run: |
+          # Write out script
           cat <<EOF > "${{ runner.temp }}/post-build.sh"
             #!/bin/sh
             set -eux
             set -f         # Disable globbing
             export IFS=' ' # Separate paths by space
-            NIX_BIN=/nix/var/nix/profiles/default/bin/nix
-            env
+            export NIX_BIN=/nix/var/nix/profiles/default/bin/nix
+            env | sort
 
             echo "Signing paths" \$OUT_PATHS
-            /nix/var/nix/profiles/default/bin/nix store sign --key-file nix-cache-secret.key --recursive \$OUT_PATHS
+            /nix/var/nix/profiles/default/bin/nix store sign --key-file ${{ runner.temp }}/nix-cache-secret.key --recursive \$OUT_PATHS
 
             echo "Uploading paths" \$OUT_PATHS
             /nix/var/nix/profiles/default/bin/nix copy --to "file://${{ runner.temp }}/nix-binary-cache" \$OUT_PATHS
           EOF
 
+          # Make it executable
           chmod +x "${{ runner.temp }}/post-build.sh"
 
-          cat "${{ runner.temp }}/post-build.sh"
+          # Write out secret key
+          echo "$NIX_SIGNING_PRIVATE_KEY" > "${{ runner.temp }}/nix-cache-secret.key"
+
+          # Prepopulate nix cache dirs
+          mkdir -p "${{ runner.temp }}/nix-binary-cache/nar"
 
       - name: Prepopulate Nix Cache
         run: |
