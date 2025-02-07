@@ -12,49 +12,20 @@ jobs:
       NIX_SIGNING_PUBLIC_KEY: local-cache-1:PrMkzjlx4rG/54500KcEEHoGoGltjMbB+CKiRWGG370=
 
     steps:
-      - name: Cache Nix
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/nix-binary-cache
-          key: ${{ runner.os }}-nix-cache-${{ hashFiles('flake.lock', 'Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-nix-cache-
-
       - name: Install Nix
         uses: cachix/install-nix-action@v30
         with:
           extra_nix_config: |
             extra-substituters = file://${{ runner.temp }}/nix-binary-cache
             extra-trusted-public-keys = ${{ env.NIX_SIGNING_PUBLIC_KEY }}
-            require-sigs = true
             post-build-hook = ${{ runner.temp }}/post-build.sh
 
-      - name: Set up Nix cache
-        run: |
-          # Write out script
-          cat <<EOF > "${{ runner.temp }}/post-build.sh"
-            #!/bin/sh
-            set -eux
-            set -f         # Disable globbing
-            export IFS=' ' # Separate paths by space
-            # Add nix executables to PATH
-            export PATH="$PATH:/nix/var/nix/profiles/default/bin"
-
-            echo "Signing paths" \$OUT_PATHS
-            nix store sign --key-file ${{ runner.temp }}/nix-cache-secret.key --recursive \$OUT_PATHS
-
-            echo "Uploading paths" \$OUT_PATHS
-            nix copy --to "file://${{ runner.temp }}/nix-binary-cache" \$OUT_PATHS
-          EOF
-
-          # Make it executable
-          chmod +x "${{ runner.temp }}/post-build.sh"
-
-          # Write out secret key
-          echo "$NIX_SIGNING_PRIVATE_KEY" > "${{ runner.temp }}/nix-cache-secret.key"
-
-          # Prepopulate nix cache dirs to avoid permission problems
-          mkdir -p "${{ runner.temp }}/nix-binary-cache/nar"
+      - name: Cache Nix
+        uses: sgillespie/actions/basic-nix-cache@latest
+        with:
+          signing-private-key: ${{ env.NIX_SIGNING_PRIVATE_KEY }}
+          path: ${{ runner.temp }}/nix-binary-cache
+          key: ${{ runner.os }}-nix-cache
 
       - name: Build hello
         run: |
